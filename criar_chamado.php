@@ -7,10 +7,11 @@ if (isset($_POST["adicionar"])) {
     $descricao = $_POST['descricao_chamado'];
     $criticidade = $_POST['criticidade_chamado'];
     $status = $_POST['status_chamado'];
+    $funcionario = $_POST['fk_funcionario'];
 
-    $sql = "INSERT INTO chamados (fk_cliente, descricao_chamado, criticidade_chamado, status_chamado) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO chamados (fk_cliente, descricao_chamado, criticidade_chamado, status_chamado, fk_funcionario) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('isss', $cliente, $descricao, $criticidade, $status);
+    $stmt->bind_param('isssi', $cliente, $descricao, $criticidade, $status, $funcionario);
 
     if ($stmt->execute()) {
         echo "Novo chamado registrado com sucesso!";
@@ -20,9 +21,10 @@ if (isset($_POST["adicionar"])) {
 }
 
 // Exibir todos os chamados
-$sql = "SELECT ch.fk_cliente, ch.id_chamado, ch.descricao_chamado, ch.criticidade_chamado, ch.status_chamado, cl.nome_cliente
+$sql = "SELECT ch.fk_cliente, ch.id_chamado, ch.descricao_chamado, ch.criticidade_chamado, ch.status_chamado, cl.nome_cliente, ch.fk_funcionario, f.nome_funcionario
         FROM chamados AS ch 
-        INNER JOIN clientes AS cl ON cl.id_cliente = ch.fk_cliente";
+        INNER JOIN clientes AS cl ON cl.id_cliente = ch.fk_cliente
+        INNER JOIN funcionarios AS f ON ch.fk_funcionario = f.id_funcionario";
 $result = $conn->query($sql);
 
 //exibindo tabela chamados
@@ -38,6 +40,8 @@ if ($result->num_rows > 0) {
                 <th>Criticidade</th>
                 <th>Status</th>
                 <th>Nome do Cliente</th>
+                <th>ID do Funcionário</th>
+                <th>Nome do Funcionário</th>
                 <th>Ações</th>
             </tr>";
     while ($row = $result->fetch_assoc()) {
@@ -48,6 +52,8 @@ if ($result->num_rows > 0) {
                 <td>{$row['criticidade_chamado']}</td>
                 <td>{$row['status_chamado']}</td>
                 <td>{$row['nome_cliente']}</td>
+                <td>{$row['fk_funcionario']}</td>
+                <td>{$row['nome_funcionario']}</td>
                 <td>
                     <form method='POST' action=''>
                         <input type='hidden' name='id_chamado' value='{$row['id_chamado']}'>
@@ -122,6 +128,9 @@ if (isset($_POST["alterar"])) {
                 <option value='resolvido'>resolvido</option>
             </select><br>
 
+            <label for='fk_funcionario'>Id do Funcionario: </label>
+            <input type='number' name='fk_funcionario' value='{$row['fk_funcionario']}' required><br>
+
             <input type='submit' name='salvar_alteracoes' value='Salvar Alterações'>
         </form>";
         
@@ -142,10 +151,11 @@ if (isset($_POST["salvar_alteracoes"])) {
     $descricao = $_POST['descricao_chamado'];
     $criticidade = $_POST['criticidade_chamado'];
     $status = $_POST['status_chamado'];
+    $funcionario = $_POST['fk_funcionario'];
 
-    $sql_update = "UPDATE chamados SET fk_cliente = ?, descricao_chamado = ?, criticidade_chamado = ?, status_chamado = ? WHERE id_chamado = ?";
+    $sql_update = "UPDATE chamados SET fk_cliente = ?, descricao_chamado = ?, criticidade_chamado = ?, status_chamado = ?, fk_funcionario = ? WHERE id_chamado = ?";
     $stmt_update = $conn->prepare($sql_update);
-    $stmt_update->bind_param('isssi', $cliente, $descricao, $criticidade, $status, $id_chamado);
+    $stmt_update->bind_param('isssii', $cliente, $descricao, $criticidade, $status, $funcionario, $id_chamado);
 
     if ($stmt_update->execute()) {
         echo "Dados do chamado atualizados com sucesso!";
@@ -170,7 +180,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chamados</title>
+    <title>Solicitação</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -193,6 +203,8 @@ $conn->close();
         <option value="em andamento">em andamento</option>
         <option value="resolvido">resolvido</option>
     </select>
+
+    Funcionário id: <input type="number" name="fk_funcionario" required>
     <input type="submit" name="adicionar">
 </form>
 <div class='row'>

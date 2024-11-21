@@ -157,7 +157,7 @@ $conn->close();
                 <input type="submit" name="adicionar">
             </form>
             <div class='row'>
-            <a href="criar_chamado.php"><button>Adicionar chamado</button></a>
+            <a href="criar_chamado.php"><button>Adicionar solicitação</button></a>
             </div>
             </div>
         </div>
